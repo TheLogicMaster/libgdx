@@ -48,7 +48,7 @@ public class ReflectionCacheSourceCreator {
 			"long", "byte", "short", "float", "double", "boolean"));
 	final TreeLogger logger;
 	final GeneratorContext context;
-	final JClassType type;
+	//final JClassType type;
 	final String simpleName;
 	final String packageName;
 	SourceWriter sw;
@@ -90,14 +90,16 @@ public class ReflectionCacheSourceCreator {
 		boolean unused;
 	}
 
-	public ReflectionCacheSourceCreator (TreeLogger logger, GeneratorContext context, JClassType type, List<JType> types) {
+	public ReflectionCacheSourceCreator (TreeLogger logger, GeneratorContext context, String packageName, String simpleName, List<JType> types) {
 		this.logger = logger;
 		this.context = context;
-		this.type = type;
-		this.packageName = type.getPackage().getName();
-		this.simpleName = type.getSimpleSourceName() + "Generated";
+		//this.type = type;
+		//this.packageName = type.getPackage().getName();
+		//this.simpleName = type.getSimpleSourceName() + "Generated";
+		this.packageName = packageName;
+		this.simpleName = simpleName;
 		this.types = types;
-		logger.log(Type.INFO, type.getQualifiedSourceName());
+		logger.log(Type.INFO, simpleName);
 	}
 
 	public String create () {
@@ -125,11 +127,11 @@ public class ReflectionCacheSourceCreator {
 		invokeM();
 
 		sw.commit(logger);
-		createProxy(type);
+		//createProxy(type);
 		return packageName + "." + simpleName;
 	}
 
-	private void createProxy (JClassType type) {
+	/*private void createProxy (JClassType type) {
 		ClassSourceFileComposerFactory composer = new ClassSourceFileComposerFactory(type.getPackage().getName(),
 			type.getSimpleSourceName() + "Proxy");
 		PrintWriter printWriter = context.tryCreate(logger, packageName, simpleName);
@@ -138,7 +140,7 @@ public class ReflectionCacheSourceCreator {
 		}
 		SourceWriter writer = composer.createSourceWriter(context, printWriter);
 		writer.commit(logger);
-	}
+	}*/
 
 	private void generateLookups () {
 		// generate Type lookup generator methods.

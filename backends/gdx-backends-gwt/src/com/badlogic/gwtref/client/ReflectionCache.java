@@ -18,9 +18,18 @@ package com.badlogic.gwtref.client;
 
 import com.google.gwt.core.client.GWT;
 
+import java.util.List;
+
 public class ReflectionCache {
-	private static IReflectionCache instance1 = GWT.create(IReflectionCache.class);
-	private static IReflectionCache instance2 = GWT.create(IReflectionCache2.class);
+	private static CacheProvider cacheProvider = GWT.create(CacheProvider.class);
+	private static IReflectionCache instance1;// = GWT.create(IReflectionCache.class);
+	private static IReflectionCache instance2;// = GWT.create(IReflectionCache2.class);
+
+	static {
+		List<IReflectionCache> caches = cacheProvider.getCaches();
+		instance1 = caches.get(0);
+		instance2 = caches.get(1);
+	}
 
 	public static Type forName (String name) throws ClassNotFoundException {
 		Type type = instance1.forName(convert(name));

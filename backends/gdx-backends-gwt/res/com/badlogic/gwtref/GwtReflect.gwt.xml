@@ -109,6 +109,6 @@
 	<extend-configuration-property name="gdx.reflect.include"
 		value="java.lang.Object" />
 	<generate-with class="com.badlogic.gwtref.gen.ReflectionCacheGenerator">
-		<when-type-assignable class="com.badlogic.gwtref.client.IReflectionCache" />
+		<when-type-assignable class="com.badlogic.gwtref.client.CacheProvider" />
 	</generate-with>
 </module>

@@ -30,7 +30,10 @@ import com.google.gwt.core.ext.typeinfo.JPackage;
 import com.google.gwt.core.ext.typeinfo.JPrimitiveType;
 import com.google.gwt.core.ext.typeinfo.JType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
+import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
+import com.google.gwt.user.rebind.SourceWriter;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -105,15 +108,37 @@ public class ReflectionCacheGenerator extends Generator {
 			}
 		});
 
-		List<JType> split;
-		if (typeName.contains("IReflectionCache2")) {
-			split = types.subList(types.size() / 2, types.size());
-		} else {
-			split = types.subList(0, types.size() / 2);
+
+		for (int i = 0; i < 2; i++) {
+			List<JType> split;
+			if (i == 1) {
+				split = types.subList(types.size() / 2, types.size());
+			} else {
+				split = types.subList(0, types.size() / 2);
+			}
+			ReflectionCacheSourceCreator source = new ReflectionCacheSourceCreator(logger, context, jType.getPackage().getName(), "ReflectionCache" + i, split);
+			source.create();
 		}
 
-		ReflectionCacheSourceCreator source = new ReflectionCacheSourceCreator(logger, context, jType, split);
-		return source.create();
+		ClassSourceFileComposerFactory composer = new ClassSourceFileComposerFactory(jType.getPackage().getName(), "CacheProviderImpl");
+		composer.addImplementedInterface("com.badlogic.gwtref.client.CacheProvider");
+
+		composer.addImport("java.util.Collections");
+		composer.addImport("java.util.ArrayList");
+		composer.addImport("java.util.List");
+		PrintWriter printWriter = context.tryCreate(logger, jType.getPackage().getName(), "CacheProviderImpl");
+		if (printWriter == null) {
+			return jType.getPackage().getName() + ".CacheProviderImpl";
+		}
+		SourceWriter sw = composer.createSourceWriter(context, printWriter);
+		sw.println("public List<IReflectionCache> getCaches(){");
+		sw.println("	List<IReflectionCache> list = new ArrayList<>();");
+		for (int i = 0; i < 2; i++)
+			sw.println("	list.add(new ReflectionCache%o());", i);
+		sw.println("	return list;");
+		sw.println("}");
+		sw.commit(logger);
+		return jType.getPackage().getName() + ".CacheProviderImpl";
 	}
 
 	private void out (String message, int nesting) {
